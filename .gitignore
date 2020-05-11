@@ -1,0 +1,13 @@
+*.pyc
+__pycache__
+
+db.sqlite3
+
+local_settings.py
+
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+.coverage
+htmlcov/
