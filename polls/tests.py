@@ -149,3 +149,9 @@ class QuestionResultsViewTests(TestCase):
         url = reverse('polls:results', args=[past_question.id])
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+
+    def test_past_question_no_choices(self):
+        question = create_question(question_text='Past Question', days=-5, choices=False)
+        url = reverse('polls:results', args=[question.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
