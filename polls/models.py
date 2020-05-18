@@ -12,6 +12,9 @@ class Question(models.Model):
         now = timezone.now()
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
 
+    def is_hidden(self):
+        return self.pub_date > timezone.now() or not self.choice_set.exists()
+
     def __str__(self):
         return self.question_text
 

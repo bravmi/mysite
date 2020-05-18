@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -128,6 +129,16 @@ class QuestionDetailViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    def test_future_question_admin(self):
+        password = 'password'
+        admin = User.objects.create_superuser('admin', '', password)
+        self.client.login(username=admin.username, password=password)
+
+        future_question = create_question(question_text='Future question', days=5)
+        url = reverse('polls:detail', args=[future_question.id])
+        response = self.client.get(url)
+        self.assertContains(response, future_question.question_text)
+
 
 class QuestionResultsViewTests(TestCase):
     def test_future_question(self):
@@ -155,3 +166,13 @@ class QuestionResultsViewTests(TestCase):
         url = reverse('polls:results', args=[question.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_future_question_admin(self):
+        password = 'password'
+        admin = User.objects.create_superuser('admin', '', password)
+        self.client.login(username=admin.username, password=password)
+
+        future_question = create_question(question_text='Future question', days=5)
+        url = reverse('polls:detail', args=[future_question.id])
+        response = self.client.get(url)
+        self.assertContains(response, future_question.question_text)
