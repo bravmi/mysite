@@ -122,7 +122,7 @@ class QuestionDetailViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
-    def test_no_choices(self):
+    def test_past_question_no_choices(self):
         question = create_question(question_text='Past Question', days=-5, choices=False)
         url = reverse('polls:detail', args=[question.id])
         response = self.client.get(url)
