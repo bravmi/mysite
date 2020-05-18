@@ -20,8 +20,8 @@ class DetailView(generic.DetailView):
     model = Question
     template_name = 'polls/detail.html'
 
-    def get_object(self):
-        question = super().get_object()
+    def get_object(self, queryset=None):
+        question = super().get_object(queryset)
         if question.is_hidden() and not self.request.user.is_superuser:
             raise Http404('No question found matching the query')
         return question
@@ -31,8 +31,8 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
-    def get_object(self):
-        question = super().get_object()
+    def get_object(self, queryset=None):
+        question = super().get_object(queryset)
         if question.is_hidden() and not self.request.user.is_superuser:
             raise Http404('No question found matching the query')
         return question
