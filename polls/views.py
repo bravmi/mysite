@@ -24,7 +24,7 @@ class DetailView(generic.DetailView):
         """
         Excludes any questions that aren't published yet.
         """
-        return Question.objects.filter(pub_date__lte=timezone.now())
+        return Question.objects.filter(pub_date__lte=timezone.now(), choice__isnull=False).distinct()
 
 
 class ResultsView(generic.DetailView):
@@ -35,7 +35,7 @@ class ResultsView(generic.DetailView):
         """
         Excludes any questions that aren't published yet.
         """
-        return Question.objects.filter(pub_date__lte=timezone.now())
+        return Question.objects.filter(pub_date__lte=timezone.now(), choice__isnull=False).distinct()
 
 
 def vote(request, question_id):
