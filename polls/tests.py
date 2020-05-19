@@ -176,3 +176,28 @@ class QuestionResultsViewTests(TestCase):
         url = reverse('polls:detail', args=[future_question.id])
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
+
+
+class VoteViewTests(TestCase):
+    def test_question_vote(self):
+        past_question = create_question(question_text='Past question', days=-5)
+        first_choice = past_question.choice_set.first()
+        self.assertEqual(first_choice.votes, 0)
+
+        url = reverse('polls:vote', args=[past_question.id])
+        response = self.client.post(url, data={'choice': first_choice.id})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('polls:results', args=[past_question.id]))
+        first_choice.refresh_from_db()
+        self.assertEqual(first_choice.votes, 1)
+
+    def test_question_vote_no_choice(self):
+        past_question = create_question(question_text='Past question', days=-5)
+        first_choice = past_question.choice_set.first()
+        self.assertEqual(first_choice.votes, 0)
+
+        url = reverse('polls:vote', args=[past_question.id])
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        first_choice.refresh_from_db()
+        self.assertEqual(first_choice.votes, 0)
