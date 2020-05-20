@@ -36,6 +36,14 @@ class QuestionModelTests(TestCase):
         recent_question = Question(pub_date=time)
         self.assertIs(recent_question.was_published_recently(), True)
 
+    def test_is_hidden_future(self):
+        question = create_question(question_text='Future question', days=30)
+        assert question.is_hidden()
+
+    def test_is_hidden_no_choices(self):
+        question = create_question(question_text='Future question', days=-30, choices=False)
+        assert question.is_hidden()
+
 
 def create_question(question_text, days, choices=True) -> Question:
     """
@@ -185,7 +193,7 @@ class VoteViewTests(TestCase):
         self.assertEqual(first_choice.votes, 0)
 
         url = reverse('polls:vote', args=[past_question.id])
-        response = self.client.post(url, data={'choice': first_choice.id})
+        response = self.client.post(url, data={'choice': first_choice.id}, follow=False)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('polls:results', args=[past_question.id]))
         first_choice.refresh_from_db()
