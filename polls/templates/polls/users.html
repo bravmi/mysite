@@ -1,0 +1,41 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+
+{% include 'registration/login_bar.html' %}
+
+<h2>Staff</h2>
+
+{% if staff %}
+<ul>
+  {% for user in staff %}
+  <li>{{ user.profile }} (Bio: {{ user.profile.bio }})</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No staffers are available.</p>
+{% endif %}
+
+<h2>Non-Staff</h2>
+
+{% if non_staff %}
+<ul>
+  {% for user in non_staff %}
+  <li>{{ user.profile }} (Bio: {{ user.profile.bio }})</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No non-staffers are available.</p>
+{% endif %}
+
+<h3>Everybody!</h3>
+
+{% if user_list %}
+<ul>
+  {% for user in user_list %}
+  <li>{{ user.profile }} (Bio: {{ user.profile.bio }})</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No users are available.</p>
+{% endif %}

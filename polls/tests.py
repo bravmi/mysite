@@ -177,7 +177,7 @@ class QuestionResultsViewTests(TestCase):
 
     def test_future_question_admin(self):
         password = 'password'
-        admin = User.objects.create_superuser('admin', '', password)
+        admin = User.objects.create_superuser(username='admin', password=password)
         self.client.login(username=admin.username, password=password)
 
         future_question = create_question(question_text='Future question', days=5)
@@ -188,6 +188,10 @@ class QuestionResultsViewTests(TestCase):
 
 class VoteViewTests(TestCase):
     def test_question_vote(self):
+        password = "/'].;[,lp"
+        user = User.objects.create_user(username='user', password=password)
+        self.client.login(username=user.username, password=password)
+
         past_question = create_question(question_text='Past question', days=-5)
         first_choice = past_question.choice_set.first()
         self.assertEqual(first_choice.votes, 0)

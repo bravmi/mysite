@@ -1,3 +1,6 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -38,6 +41,7 @@ class ResultsView(generic.DetailView):
         return question
 
 
+@login_required
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
@@ -54,3 +58,14 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results', args=[question.id]))
+
+
+class UsersView(LoginRequiredMixin, generic.ListView):
+    model = User
+    template_name = 'polls/users.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['staff'] = [user for user in User.objects.all() if user.is_staff]
+        context['non_staff'] = [user for user in User.objects.all() if not user.is_staff]
+        return context
