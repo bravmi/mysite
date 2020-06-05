@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
 
+from .forms import CommentForm
 from .models import Choice, Question
 
 
@@ -69,3 +70,17 @@ class UsersView(LoginRequiredMixin, generic.ListView):
         context['staff'] = [user for user in User.objects.all() if user.is_staff]
         context['non_staff'] = [user for user in User.objects.all() if not user.is_staff]
         return context
+
+
+class CreateCommentView(generic.CreateView):
+    form_class = CommentForm
+    template_name = 'polls/add_comment.html'
+
+    def get_success_url(self):
+        return reverse('polls:detail', kwargs={'pk': self.object.question.id})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['question_pk'] = self.kwargs.get('pk')
+        kwargs['username'] = self.request.user.username
+        return kwargs

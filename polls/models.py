@@ -39,3 +39,13 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Comment(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    author = models.CharField(max_length=200)
+    text = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.text
