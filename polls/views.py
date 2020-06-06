@@ -5,13 +5,13 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views import generic
+from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import CommentForm
 from .models import Choice, Question
 
 
-class IndexView(generic.ListView):
+class IndexView(ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
 
@@ -20,7 +20,7 @@ class IndexView(generic.ListView):
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
 
 
-class DetailView(generic.DetailView):
+class QuestionView(DetailView):
     model = Question
     template_name = 'polls/detail.html'
 
@@ -31,7 +31,7 @@ class DetailView(generic.DetailView):
         return question
 
 
-class ResultsView(generic.DetailView):
+class ResultsView(DetailView):
     model = Question
     template_name = 'polls/results.html'
 
@@ -61,7 +61,7 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse('polls:results', args=[question.id]))
 
 
-class UsersView(LoginRequiredMixin, generic.ListView):
+class UsersView(LoginRequiredMixin, ListView):
     model = User
     template_name = 'polls/users.html'
 
@@ -72,7 +72,7 @@ class UsersView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class CreateCommentView(generic.CreateView):
+class CreateCommentView(CreateView):
     form_class = CommentForm
     template_name = 'polls/add_comment.html'
 
