@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Choice, Question
+from .models import Choice, Question, Comment
 
 
 class QuestionModelTests(TestCase):
@@ -16,7 +16,7 @@ class QuestionModelTests(TestCase):
         """
         time = timezone.now() + datetime.timedelta(days=30)
         future_question = Question(pub_date=time)
-        self.assertIs(future_question.was_published_recently(), False)
+        assert future_question.was_published_recently() is False
 
     def test_was_published_recently_with_old_question(self):
         """
@@ -25,7 +25,7 @@ class QuestionModelTests(TestCase):
         """
         time = timezone.now() - datetime.timedelta(days=1, seconds=1)
         old_question = Question(pub_date=time)
-        self.assertIs(old_question.was_published_recently(), False)
+        assert old_question.was_published_recently() is False
 
     def test_was_published_recently_with_recent_question(self):
         """
@@ -34,7 +34,7 @@ class QuestionModelTests(TestCase):
         """
         time = timezone.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
         recent_question = Question(pub_date=time)
-        self.assertIs(recent_question.was_published_recently(), True)
+        assert recent_question.was_published_recently() is True
 
     def test_is_hidden_future(self):
         question = create_question(question_text='Future question', days=30)
@@ -43,6 +43,10 @@ class QuestionModelTests(TestCase):
     def test_is_hidden_no_choices(self):
         question = create_question(question_text='Future question', days=-30, choices=False)
         assert question.is_hidden()
+
+
+class ProfileModelTests(TestCase):
+    ...
 
 
 def create_question(question_text, days, choices=True) -> Question:
@@ -65,7 +69,7 @@ class QuestionIndexViewTests(TestCase):
         If no questions exist, an appropriate message is displayed.
         """
         response = self.client.get(reverse('polls:index'))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertContains(response, "No polls are available.")
         self.assertQuerysetEqual(response.context['latest_question_list'], [])
 
@@ -119,7 +123,7 @@ class QuestionDetailViewTests(TestCase):
         future_question = create_question(question_text='Future question', days=5)
         url = reverse('polls:detail', args=[future_question.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_past_question(self):
         """
@@ -135,7 +139,7 @@ class QuestionDetailViewTests(TestCase):
         question = create_question(question_text='Past Question', days=-5, choices=False)
         url = reverse('polls:detail', args=[question.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_future_question_admin(self):
         password = 'password'
@@ -157,7 +161,7 @@ class QuestionResultsViewTests(TestCase):
         future_question = create_question(question_text='Future question', days=5)
         url = reverse('polls:results', args=[future_question.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_past_question(self):
         """
@@ -173,7 +177,7 @@ class QuestionResultsViewTests(TestCase):
         question = create_question(question_text='Past Question', days=-5, choices=False)
         url = reverse('polls:results', args=[question.id])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_future_question_admin(self):
         password = 'password'
@@ -194,22 +198,42 @@ class VoteViewTests(TestCase):
 
         past_question = create_question(question_text='Past question', days=-5)
         first_choice = past_question.choice_set.first()
-        self.assertEqual(first_choice.votes, 0)
+        assert first_choice.votes == 0
 
         url = reverse('polls:vote', args=[past_question.id])
         response = self.client.post(url, data={'choice': first_choice.id}, follow=False)
-        self.assertEqual(response.status_code, 302)
+        assert response.status_code == 302
         self.assertRedirects(response, reverse('polls:results', args=[past_question.id]))
         first_choice.refresh_from_db()
-        self.assertEqual(first_choice.votes, 1)
+        assert first_choice.votes == 1
 
     def test_question_vote_no_choice(self):
         past_question = create_question(question_text='Past question', days=-5)
         first_choice = past_question.choice_set.first()
-        self.assertEqual(first_choice.votes, 0)
+        assert first_choice.votes == 0
 
         url = reverse('polls:vote', args=[past_question.id])
         response = self.client.post(url, follow=True)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         first_choice.refresh_from_db()
-        self.assertEqual(first_choice.votes, 0)
+        assert first_choice.votes == 0
+
+
+class CreateCommentViewTests(TestCase):
+    def test_add_comment(self):
+        question = create_question(question_text='Past question', days=-5)
+        url = reverse('polls:add_comment', args=[question.id])
+        response = self.client.post(
+            url,
+            data={
+                'question': question.id,
+                'created_date': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'author': 'author',
+                'text': 'text',
+            },
+            follow=False,
+        )
+        assert response.status_code == 302
+        self.assertRedirects(response, reverse('polls:detail', args=[question.id]))
+        assert len(Comment.objects.all()) == 1
+        assert len(question.comment_set.all()) == 1
