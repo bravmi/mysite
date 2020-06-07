@@ -77,7 +77,7 @@ class CreateCommentView(CreateView):
     template_name = 'polls/add_comment.html'
 
     def get_success_url(self):
-        return reverse('polls:detail', kwargs={'pk': self.object.question.id})
+        return reverse('polls:question', kwargs={'pk': self.object.question.id})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

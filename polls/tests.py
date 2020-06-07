@@ -121,7 +121,7 @@ class QuestionDetailViewTests(TestCase):
         returns a 404 not found.
         """
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:detail', args=[future_question.id])
+        url = reverse('polls:question', args=[future_question.id])
         response = self.client.get(url)
         assert response.status_code == 404
 
@@ -131,13 +131,13 @@ class QuestionDetailViewTests(TestCase):
         displays the question's text.
         """
         past_question = create_question(question_text='Past question', days=-5)
-        url = reverse('polls:detail', args=[past_question.id])
+        url = reverse('polls:question', args=[past_question.id])
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
     def test_past_question_no_choices(self):
         question = create_question(question_text='Past Question', days=-5, choices=False)
-        url = reverse('polls:detail', args=[question.id])
+        url = reverse('polls:question', args=[question.id])
         response = self.client.get(url)
         assert response.status_code == 404
 
@@ -147,7 +147,7 @@ class QuestionDetailViewTests(TestCase):
         self.client.login(username=admin.username, password=password)
 
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:detail', args=[future_question.id])
+        url = reverse('polls:question', args=[future_question.id])
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
 
@@ -185,7 +185,7 @@ class QuestionResultsViewTests(TestCase):
         self.client.login(username=admin.username, password=password)
 
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:detail', args=[future_question.id])
+        url = reverse('polls:question', args=[future_question.id])
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
 
@@ -234,6 +234,6 @@ class CreateCommentViewTests(TestCase):
             follow=False,
         )
         assert response.status_code == 302
-        self.assertRedirects(response, reverse('polls:detail', args=[question.id]))
+        self.assertRedirects(response, reverse('polls:question', args=[question.id]))
         assert len(Comment.objects.all()) == 1
         assert len(question.comment_set.all()) == 1
