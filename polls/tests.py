@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Choice, Question, Comment
+from .models import Choice, Question, Comment, Profile
 
 
 class QuestionModelTests(TestCase):
@@ -46,7 +46,11 @@ class QuestionModelTests(TestCase):
 
 
 class ProfileModelTests(TestCase):
-    ...
+    def test_auto_profile_creation(self):
+        password = 'password'
+        user = User.objects.create_user(username='username', password=password)
+        assert len(Profile.objects.all()) == 1
+        assert user.profile.user is user
 
 
 def create_question(question_text, days, choices=True) -> Question:
