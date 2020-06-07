@@ -22,7 +22,7 @@ class IndexView(ListView):
 
 class QuestionView(DetailView):
     model = Question
-    template_name = 'polls/detail.html'
+    template_name = 'polls/question.html'
 
     def get_object(self, queryset=None):
         question = super().get_object(queryset)
@@ -61,15 +61,20 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse('polls:results', args=[question.id]))
 
 
-class UsersView(LoginRequiredMixin, ListView):
+class UserListView(LoginRequiredMixin, ListView):
     model = User
-    template_name = 'polls/users.html'
+    template_name = 'polls/user_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['staff'] = [user for user in User.objects.all() if user.is_staff]
         context['non_staff'] = [user for user in User.objects.all() if not user.is_staff]
         return context
+
+
+class UserView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'polls/user.html'
 
 
 class CreateCommentView(CreateView):

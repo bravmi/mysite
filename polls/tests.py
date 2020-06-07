@@ -143,7 +143,7 @@ class QuestionDetailViewTests(TestCase):
 
     def test_future_question_admin(self):
         password = 'password'
-        admin = User.objects.create_superuser('admin', '', password)
+        admin = User.objects.create_superuser(username='admin', password=password)
         self.client.login(username=admin.username, password=password)
 
         future_question = create_question(question_text='Future question', days=5)
@@ -237,3 +237,23 @@ class CreateCommentViewTests(TestCase):
         self.assertRedirects(response, reverse('polls:question', args=[question.id]))
         assert len(Comment.objects.all()) == 1
         assert len(question.comment_set.all()) == 1
+
+
+class UserViewTests(TestCase):
+    def test_user_not_logged_in(self):
+        password = 'password'
+        user = User.objects.create_user(username='username', password=password)
+        url = reverse('polls:user', args=[user.id])
+
+        response = self.client.get(url, follow=False)
+        assert response.status_code == 302
+        assert url in response.url
+
+    def test_user_logged_in(self):
+        password = 'password'
+        user = User.objects.create_user(username='username', password=password)
+        self.client.login(username=user.username, password=password)
+
+        url = reverse('polls:user', args=[user.id])
+        response = self.client.get(url, follow=False)
+        assert response.status_code == 200

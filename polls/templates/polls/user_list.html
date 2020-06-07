@@ -9,7 +9,7 @@
 {% if staff %}
 <ul>
   {% for user in staff %}
-  <li>{{ user.profile }} (Bio: {{ user.profile.bio }})</li>
+  <li><a href="{% url 'polls:user' user.id %}">{{ user.username }}</a> (Bio: {{ user.profile.bio }})</li>
   {% endfor %}
 </ul>
 {% else %}
@@ -21,7 +21,7 @@
 {% if non_staff %}
 <ul>
   {% for user in non_staff %}
-  <li>{{ user.profile }} (Bio: {{ user.profile.bio }})</li>
+  <li><a href="{% url 'polls:user' user.id %}">{{ user.username }}</a> (Bio: {{ user.profile.bio }})</li>
   {% endfor %}
 </ul>
 {% else %}
@@ -33,7 +33,7 @@
 {% if user_list %}
 <ul>
   {% for user in user_list %}
-  <li>{{ user.profile }} (Bio: {{ user.profile.bio }})</li>
+  <li><a href="{% url 'polls:user' user.id %}">{{ user.username }}</a> (Bio: {{ user.profile.bio }})</li>
   {% endfor %}
 </ul>
 {% else %}

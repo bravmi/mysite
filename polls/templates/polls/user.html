@@ -1,0 +1,17 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+
+{% include 'registration/login_bar.html' %}
+
+<ul>
+  <li>status: 
+    {% if user.is_staff %}
+      staff
+    {% else %}
+      non-staff
+    {% endif %}
+  </li>
+  <li>username: {{ user.username }}</li>
+  <li>bio: {{ user.profile.bio }}</li>
+</ul>
