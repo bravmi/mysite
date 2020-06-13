@@ -1,17 +1,21 @@
-{% load static %}
+{% extends 'polls/base.html' %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+{% block body %}
 
-{% include 'registration/login_bar.html' %}
+<div class="row">
+  <div class="col-6">
+    <ul>
+      <li>username: {{ user.username }}</li>
+      <li>status:
+        {% if user.is_staff %}
+        staff
+        {% else %}
+        non-staff
+        {% endif %}
+      </li>
+      <li>bio: {{ user.profile.bio }}</li>
+    </ul>
+  </div>
+</div>
 
-<ul>
-  <li>status: 
-    {% if user.is_staff %}
-      staff
-    {% else %}
-      non-staff
-    {% endif %}
-  </li>
-  <li>username: {{ user.username }}</li>
-  <li>bio: {{ user.profile.bio }}</li>
-</ul>
+{% endblock body %}

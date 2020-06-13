@@ -1,25 +1,41 @@
-{% include 'registration/login_bar.html' %}
+{% extends 'polls/base.html' %}
 
-<h1>{{ question.question_text }}</h1>
+{% block body %}
 
-{% if error_message %}
-<p><strong>{{ error_message }}</strong></p>
-{% endif %}
+<div class="row">
+  <div class="col-6">
+    <h1 class="mt-2">{{ question.question_text }}</h1>
+    <hr class="mt-0 mb-4">
 
-<form action="{% url 'polls:vote' question.id %}" method="post">
-  {% csrf_token %}
-  {% for choice in question.choice_set.all %}
-  <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-  <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
-  {% endfor %}
-  <input type="submit" value="Vote">
-</form>
+    {% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
 
-<a href="{% url 'polls:add_comment' question.id %}">Add comment</a>
+    <form action="{% url 'polls:vote' question.id %}" method="post">
+      {% csrf_token %}
+      {% for choice in question.choice_set.all %}
+      <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+      <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label>
+      <br>
+      {% endfor %}
+      <input type="submit" value="Vote" role="button" class="btn btn-success my-2">
+    </form>
 
-{% for comment in question.comment_set.all %}
-<p>{{ comment.created_date}} by {{ comment.author }}</p>
-<p>{{ comment.text|linebreaks }}</p>
-{% empty %}
-<p>No comments here yet :(</p>
-{% endfor %}
+    <a href="{% url 'polls:add_comment' question.id %}">Add comment</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-6">
+    {% for comment in question.comment_set.all %}
+    <hr>
+    <p>{{ comment.created_date}} by <i>{{ comment.author }}</i></p>
+    <p>{{ comment.text|linebreaks }}</p>
+    {% empty %}
+    <hr>
+    <p>No comments here yet :(</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock body %}

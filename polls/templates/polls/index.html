@@ -1,15 +1,20 @@
-{% load static %}
+{% extends 'polls/base.html' %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+{% block body %}
 
-{% include 'registration/login_bar.html' %}
+<div class="row">
+  <div class="col-6">
+    {% if latest_question_list %}
+    <ul>
+      {% for question in latest_question_list %}
+      <li><a href="{% url 'polls:question' question.id %}">{{ question.question_text }}</a> (<a
+          href="{% url 'polls:results' question.id %}" class="text-success">results</a>)</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No polls are available.</p>
+    {% endif %}
+  </div>
+</div>
 
-{% if latest_question_list %}
-<ul>
-  {% for question in latest_question_list %}
-  <li><a href="{% url 'polls:question' question.id %}">{{ question.question_text }}</a> (<a href="{% url 'polls:results' question.id %}">results</a>)</li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>No polls are available.</p>
-{% endif %}
+{% endblock body %}

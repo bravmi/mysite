@@ -1,11 +1,34 @@
-{% include 'registration/login_bar.html' %}
+{% extends 'polls/base.html' %}
 
-<h1>{{ question.question_text }}</h1>
+{% block body %}
 
-<ul>
-  {% for choice in question.choice_set.all %}
-  <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
-  {% endfor %}
-</ul>
+<div class="row">
+  <div class="col-6">
+    <h1 class="mt-2">{{ question.question_text }}</h1>
+    <hr class="mt-0 mb-4">
 
-<a href="{% url 'polls:question' question.id %}">Vote again?</a>
+    <table class="table table-striped table-sm table-hover">
+      <tr>
+        <th>Language</th>
+        <th>Votes</th>
+      </tr>
+      {% for choice in question.choice_set.all %}
+      {% if forloop.first  %}
+      <tr class="table-success">
+        <td>{{ choice.choice_text }}</td>
+        <td>{{ choice.votes }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td>{{ choice.choice_text }}</td>
+        <td>{{ choice.votes }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+
+    <a href="{% url 'polls:question' question.id %}">Vote again?</a>
+  </div>
+</div>
+
+{% endblock body %}

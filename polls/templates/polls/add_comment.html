@@ -1,8 +1,20 @@
-{% include 'registration/login_bar.html' %}
+{% extends 'polls/base.html' %}
 
-<h1>New Comment</h1>
-<form method="post" class="post-form">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Send</button>
-</form>
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+<div class="row">
+  <div class="col-6">
+    <h1 class="mt-2">New Comment</h1>
+    <hr class="mt-0 mb-4">
+
+    <form method="post" class="post-form">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-success">Send</button>
+    </form>
+  </div>
+</div>
+
+{% endblock body %}
