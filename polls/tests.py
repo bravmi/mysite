@@ -211,13 +211,26 @@ class VoteViewTests(TestCase):
         first_choice.refresh_from_db()
         assert first_choice.votes == 1
 
-    def test_question_vote_no_choice(self):
+    def test_vote_login_redirect(self):
         past_question = create_question(question_text='Past question', days=-5)
         first_choice = past_question.choice_set.first()
         assert first_choice.votes == 0
 
         url = reverse('polls:vote', args=[past_question.id])
         response = self.client.post(url, follow=True)
+        self.assertRedirects(response, f'{reverse("login")}?next={url}')
+
+    def test_vote_no_choice(self):
+        password = "/'].;[,lp"
+        user = User.objects.create_user(username='user', password=password)
+        self.client.login(username=user.username, password=password)
+
+        past_question = create_question(question_text='Past question', days=-5)
+        first_choice = past_question.choice_set.first()
+        assert first_choice.votes == 0
+
+        url = reverse('polls:vote', args=[past_question.id])
+        response = self.client.post(url, follow=False)
         assert response.status_code == 200
         first_choice.refresh_from_db()
         assert first_choice.votes == 0
