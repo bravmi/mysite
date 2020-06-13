@@ -1,3 +1,9 @@
-{% include 'registration/login_bar.html' %}
+{% extends 'registration/base.html' %}
 
-<p>You're not logged out of the polls app!</p>
+{% block body %}
+
+<a href="{% url 'login' %}" class="nav-link text-light">login</a>
+
+<p>You're now logged out of the polls app!</p>
+
+{% endblock body %}
