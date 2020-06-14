@@ -229,7 +229,7 @@ class VoteViewTests(TestCase):
         assert first_choice.votes == 0
 
         url = reverse('polls:vote', args=[past_question.id])
-        response = self.client.post(url, follow=True)
+        response = self.client.post(url, follow=False)
         assert response.status_code == 200
         first_choice.refresh_from_db()
         assert first_choice.votes == 0
@@ -269,5 +269,19 @@ class UserViewTests(TestCase):
         self.client.login(username=user.username, password=password)
 
         url = reverse('polls:user', args=[user.id])
-        response = self.client.get(url, follow=True)
+        response = self.client.get(url, follow=False)
         assert response.status_code == 200
+
+
+class UserListViewTests(TestCase):
+    def test_staff_user(self):
+        password = 'password'
+        admin = User.objects.create_superuser(username='admin', password=password)
+        self.client.login(username=admin.username, password=password)
+
+        url = reverse('polls:user_list')
+        response = self.client.get(url, follow=False)
+        assert response.status_code == 200
+        user_list = response.context_data['user_list']
+        assert len(user_list) == 1
+        assert user_list[0].username == admin.username
