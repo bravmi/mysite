@@ -241,7 +241,7 @@ class CreateCommentViewTests(TestCase):
         url = reverse('polls:add_comment', args=[question.id])
         username = 'anon'
         response = self.client.post(
-            url, data={'question': question.id, 'author': username, 'text': 'text',}, follow=True,
+            url, data={'question': question.id, 'author': username, 'text': 'text'}, follow=True,
         )
         self.assertRedirects(response, reverse('polls:question', args=[question.id]))
         assert len(Comment.objects.all()) == 1
@@ -257,7 +257,7 @@ class CreateCommentViewTests(TestCase):
         question = create_question(question_text='Past question', days=-5)
         url = reverse('polls:add_comment', args=[question.id])
         response = self.client.post(
-            url, data={'question': question.id, 'author': user.username, 'text': 'text',}, follow=True,
+            url, data={'question': question.id, 'author': user.username, 'text': 'text'}, follow=True,
         )
         self.assertRedirects(response, reverse('polls:question', args=[question.id]))
         assert len(Comment.objects.all()) == 1
