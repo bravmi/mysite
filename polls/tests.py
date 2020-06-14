@@ -205,8 +205,7 @@ class VoteViewTests(TestCase):
         assert first_choice.votes == 0
 
         url = reverse('polls:vote', args=[past_question.id])
-        response = self.client.post(url, data={'choice': first_choice.id}, follow=False)
-        assert response.status_code == 302
+        response = self.client.post(url, data={'choice': first_choice.id}, follow=True)
         self.assertRedirects(response, reverse('polls:results', args=[past_question.id]))
         first_choice.refresh_from_db()
         assert first_choice.votes == 1
@@ -230,7 +229,7 @@ class VoteViewTests(TestCase):
         assert first_choice.votes == 0
 
         url = reverse('polls:vote', args=[past_question.id])
-        response = self.client.post(url, follow=False)
+        response = self.client.post(url, follow=True)
         assert response.status_code == 200
         first_choice.refresh_from_db()
         assert first_choice.votes == 0
@@ -248,9 +247,8 @@ class CreateCommentViewTests(TestCase):
                 'author': 'author',
                 'text': 'text',
             },
-            follow=False,
+            follow=True,
         )
-        assert response.status_code == 302
         self.assertRedirects(response, reverse('polls:question', args=[question.id]))
         assert len(Comment.objects.all()) == 1
         assert len(question.comment_set.all()) == 1
@@ -262,9 +260,8 @@ class UserViewTests(TestCase):
         user = User.objects.create_user(username='username', password=password)
         url = reverse('polls:user', args=[user.id])
 
-        response = self.client.get(url, follow=False)
-        assert response.status_code == 302
-        assert url in response.url
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, f'{reverse("login")}?next={url}')
 
     def test_user_logged_in(self):
         password = 'password'
@@ -272,5 +269,5 @@ class UserViewTests(TestCase):
         self.client.login(username=user.username, password=password)
 
         url = reverse('polls:user', args=[user.id])
-        response = self.client.get(url, follow=False)
+        response = self.client.get(url, follow=True)
         assert response.status_code == 200
