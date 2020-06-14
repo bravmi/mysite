@@ -236,22 +236,34 @@ class VoteViewTests(TestCase):
 
 
 class CreateCommentViewTests(TestCase):
-    def test_add_comment(self):
+    def test_add_anon_comment(self):
         question = create_question(question_text='Past question', days=-5)
         url = reverse('polls:add_comment', args=[question.id])
+        username = 'anon'
         response = self.client.post(
-            url,
-            data={
-                'question': question.id,
-                'created_date': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'author': 'author',
-                'text': 'text',
-            },
-            follow=True,
+            url, data={'question': question.id, 'author': username, 'text': 'text',}, follow=True,
         )
         self.assertRedirects(response, reverse('polls:question', args=[question.id]))
         assert len(Comment.objects.all()) == 1
         assert len(question.comment_set.all()) == 1
+        comment = question.comment_set.first()
+        assert comment.author == username
+
+    def test_add_comment(self):
+        password = 'password'
+        user = User.objects.create_user(username='username', password=password)
+        self.client.login(username=user.username, password=password)
+
+        question = create_question(question_text='Past question', days=-5)
+        url = reverse('polls:add_comment', args=[question.id])
+        response = self.client.post(
+            url, data={'question': question.id, 'author': user.username, 'text': 'text',}, follow=True,
+        )
+        self.assertRedirects(response, reverse('polls:question', args=[question.id]))
+        assert len(Comment.objects.all()) == 1
+        assert len(question.comment_set.all()) == 1
+        comment = question.comment_set.first()
+        assert comment.author == user.username
 
 
 class UserViewTests(TestCase):
