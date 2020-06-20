@@ -67,7 +67,7 @@ def create_question(question_text, days, choices=True) -> Question:
     return question
 
 
-class QuestionIndexViewTests(TestCase):
+class IndexViewTests(TestCase):
     def test_no_questions(self):
         """
         If no questions exist, an appropriate message is displayed.
@@ -118,7 +118,7 @@ class QuestionIndexViewTests(TestCase):
         )
 
 
-class QuestionDetailViewTests(TestCase):
+class QuestionViewTests(TestCase):
     def test_future_question(self):
         """
         The detail view of a question with a pub_date in the future
@@ -156,7 +156,7 @@ class QuestionDetailViewTests(TestCase):
         self.assertContains(response, future_question.question_text)
 
 
-class QuestionResultsViewTests(TestCase):
+class ResultsViewTests(TestCase):
     def test_future_question(self):
         """
         The results view of a question with a pub_date in the future
