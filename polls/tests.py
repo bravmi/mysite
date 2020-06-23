@@ -41,7 +41,7 @@ class QuestionModelTests(TestCase):
         assert question.is_hidden()
 
     def test_is_hidden_no_choices(self):
-        question = create_question(question_text='Future question', days=-30, choices=False)
+        question = create_question(question_text='Future question', days=-30, nchoices=0)
         assert question.is_hidden()
 
 
@@ -53,7 +53,7 @@ class ProfileModelTests(TestCase):
         assert user.profile.user is user
 
 
-def create_question(question_text, days, choices=True) -> Question:
+def create_question(question_text, days, nchoices=2) -> Question:
     """
     Create a question with the given `question_text` and published the
     given number of `days` offset to now (negative for questions published
@@ -61,9 +61,9 @@ def create_question(question_text, days, choices=True) -> Question:
     """
     time = timezone.now() + datetime.timedelta(days=days)
     question = Question.objects.create(question_text=question_text, pub_date=time)
-    if choices:
-        Choice.objects.create(question=question, choice_text='Choice 1')
-        Choice.objects.create(question=question, choice_text='Choice 2')
+    if nchoices:
+        for i in range(nchoices):
+            Choice.objects.create(question=question, choice_text=f'Choice {i + 1}')
     return question
 
 
@@ -140,7 +140,7 @@ class QuestionViewTests(TestCase):
         self.assertContains(response, past_question.question_text)
 
     def test_past_question_no_choices(self):
-        question = create_question(question_text='Past Question', days=-5, choices=False)
+        question = create_question(question_text='Past Question', days=-5, nchoices=0)
         url = reverse('polls:question', args=[question.id])
         response = self.client.get(url)
         assert response.status_code == 404
@@ -178,7 +178,7 @@ class ResultsViewTests(TestCase):
         self.assertContains(response, past_question.question_text)
 
     def test_past_question_no_choices(self):
-        question = create_question(question_text='Past Question', days=-5, choices=False)
+        question = create_question(question_text='Past Question', days=-5, nchoices=0)
         url = reverse('polls:results', args=[question.id])
         response = self.client.get(url)
         assert response.status_code == 404
