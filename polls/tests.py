@@ -155,6 +155,15 @@ class QuestionViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
 
+    def test_ordered_choices(self):
+        question = create_question(question_text='Past Question', days=-5, nchoices=2)
+        first, second = question.choice_set.all()
+        first.votes = 1
+        first.save()
+        second.votes = 2
+        second.save()
+        assert question.choice_set.first() == question.choice_set.order_by('-votes').first()
+
 
 class ResultsViewTests(TestCase):
     def test_future_question(self):
