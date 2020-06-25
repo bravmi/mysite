@@ -125,7 +125,7 @@ class QuestionViewTests(TestCase):
         returns a 404 not found.
         """
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:question', args=[future_question.id])
+        url = reverse('polls:question', args=[future_question.pk])
         response = self.client.get(url)
         assert response.status_code == 404
 
@@ -135,13 +135,13 @@ class QuestionViewTests(TestCase):
         displays the question's text.
         """
         past_question = create_question(question_text='Past question', days=-5)
-        url = reverse('polls:question', args=[past_question.id])
+        url = reverse('polls:question', args=[past_question.pk])
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
     def test_past_question_no_choices(self):
         question = create_question(question_text='Past Question', days=-5, nchoices=0)
-        url = reverse('polls:question', args=[question.id])
+        url = reverse('polls:question', args=[question.pk])
         response = self.client.get(url)
         assert response.status_code == 404
 
@@ -151,18 +151,9 @@ class QuestionViewTests(TestCase):
         self.client.login(username=admin.username, password=password)
 
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:question', args=[future_question.id])
+        url = reverse('polls:question', args=[future_question.pk])
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
-
-    def test_ordered_choices(self):
-        question = create_question(question_text='Past Question', days=-5, nchoices=2)
-        first, second = question.choice_set.all()
-        first.votes = 1
-        first.save()
-        second.votes = 2
-        second.save()
-        assert question.choice_set.first() == question.choice_set.order_by('-votes').first()
 
 
 class ResultsViewTests(TestCase):
@@ -172,7 +163,7 @@ class ResultsViewTests(TestCase):
         returns a 404 not found.
         """
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:results', args=[future_question.id])
+        url = reverse('polls:results', args=[future_question.pk])
         response = self.client.get(url)
         assert response.status_code == 404
 
@@ -182,13 +173,13 @@ class ResultsViewTests(TestCase):
         displays the question's text.
         """
         past_question = create_question(question_text='Past Question', days=-5)
-        url = reverse('polls:results', args=[past_question.id])
+        url = reverse('polls:results', args=[past_question.pk])
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
     def test_past_question_no_choices(self):
         question = create_question(question_text='Past Question', days=-5, nchoices=0)
-        url = reverse('polls:results', args=[question.id])
+        url = reverse('polls:results', args=[question.pk])
         response = self.client.get(url)
         assert response.status_code == 404
 
@@ -198,9 +189,19 @@ class ResultsViewTests(TestCase):
         self.client.login(username=admin.username, password=password)
 
         future_question = create_question(question_text='Future question', days=5)
-        url = reverse('polls:question', args=[future_question.id])
+        url = reverse('polls:results', args=[future_question.pk])
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
+        self.assertContains(response, future_question.choice_set.first().choice_text)
+
+    def test_choices_order(self):
+        question = create_question(question_text='Past Question', days=-5, nchoices=2)
+        first, second = question.choice_set.all()
+        first.votes = 1
+        first.save()
+        second.votes = 2
+        second.save()
+        assert question.choice_set.first() == question.choice_set.order_by('-votes').first()
 
 
 class VoteViewTests(TestCase):
@@ -213,9 +214,9 @@ class VoteViewTests(TestCase):
         first_choice = past_question.choice_set.first()
         assert first_choice.votes == 0
 
-        url = reverse('polls:vote', args=[past_question.id])
-        response = self.client.post(url, data={'choice': first_choice.id}, follow=True)
-        self.assertRedirects(response, reverse('polls:results', args=[past_question.id]))
+        url = reverse('polls:vote', args=[past_question.pk])
+        response = self.client.post(url, data={'choice': first_choice.pk}, follow=True)
+        self.assertRedirects(response, reverse('polls:results', args=[past_question.pk]))
         first_choice.refresh_from_db()
         assert first_choice.votes == 1
 
@@ -224,7 +225,7 @@ class VoteViewTests(TestCase):
         first_choice = past_question.choice_set.first()
         assert first_choice.votes == 0
 
-        url = reverse('polls:vote', args=[past_question.id])
+        url = reverse('polls:vote', args=[past_question.pk])
         response = self.client.post(url, follow=True)
         self.assertRedirects(response, f'{reverse("login")}?next={url}')
 
@@ -237,7 +238,7 @@ class VoteViewTests(TestCase):
         first_choice = past_question.choice_set.first()
         assert first_choice.votes == 0
 
-        url = reverse('polls:vote', args=[past_question.id])
+        url = reverse('polls:vote', args=[past_question.pk])
         response = self.client.post(url, follow=False)
         assert response.status_code == 200
         first_choice.refresh_from_db()
@@ -247,12 +248,12 @@ class VoteViewTests(TestCase):
 class CreateCommentViewTests(TestCase):
     def test_add_anon_comment(self):
         question = create_question(question_text='Past question', days=-5)
-        url = reverse('polls:add_comment', args=[question.id])
+        url = reverse('polls:add_comment', args=[question.pk])
         username = 'anon'
         response = self.client.post(
-            url, data={'question': question.id, 'author': username, 'text': 'text'}, follow=True,
+            url, data={'question': question.pk, 'author': username, 'text': 'text'}, follow=True,
         )
-        self.assertRedirects(response, reverse('polls:question', args=[question.id]))
+        self.assertRedirects(response, reverse('polls:question', args=[question.pk]))
         assert len(Comment.objects.all()) == 1
         assert len(question.comment_set.all()) == 1
         comment = question.comment_set.first()
@@ -264,11 +265,11 @@ class CreateCommentViewTests(TestCase):
         self.client.login(username=user.username, password=password)
 
         question = create_question(question_text='Past question', days=-5)
-        url = reverse('polls:add_comment', args=[question.id])
+        url = reverse('polls:add_comment', args=[question.pk])
         response = self.client.post(
-            url, data={'question': question.id, 'author': user.username, 'text': 'text'}, follow=True,
+            url, data={'question': question.pk, 'author': user.username, 'text': 'text'}, follow=True,
         )
-        self.assertRedirects(response, reverse('polls:question', args=[question.id]))
+        self.assertRedirects(response, reverse('polls:question', args=[question.pk]))
         assert len(Comment.objects.all()) == 1
         assert len(question.comment_set.all()) == 1
         comment = question.comment_set.first()
@@ -279,7 +280,7 @@ class UserViewTests(TestCase):
     def test_user_not_logged_in(self):
         password = 'password'
         user = User.objects.create_user(username='username', password=password)
-        url = reverse('polls:user', args=[user.id])
+        url = reverse('polls:user', args=[user.pk])
 
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, f'{reverse("login")}?next={url}')
@@ -289,7 +290,7 @@ class UserViewTests(TestCase):
         user = User.objects.create_user(username='username', password=password)
         self.client.login(username=user.username, password=password)
 
-        url = reverse('polls:user', args=[user.id])
+        url = reverse('polls:user', args=[user.pk])
         response = self.client.get(url, follow=False)
         assert response.status_code == 200
 
