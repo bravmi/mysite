@@ -246,7 +246,7 @@ class VoteViewTests(TestCase):
 
 
 class CreateCommentViewTests(TestCase):
-    def test_add_anon_comment(self):
+    def test_add_comment_anon(self):
         question = create_question(question_text='Past question', days=-5)
         url = reverse('polls:add_comment', args=[question.pk])
         username = 'anon'
