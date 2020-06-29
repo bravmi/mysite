@@ -53,6 +53,17 @@ class ProfileModelTests(TestCase):
         assert user.profile.user is user
 
 
+class ChoiceModelTests(TestCase):
+    def test_choices_order(self):
+        question = create_question(question_text='Past Question', days=-5, nchoices=2)
+        first, second = question.choice_set.all()
+        first.votes = 1
+        first.save()
+        second.votes = 2
+        second.save()
+        assert question.choice_set.first() == question.choice_set.order_by('-votes').first()
+
+
 def create_question(question_text, days, nchoices=2) -> Question:
     """
     Create a question with the given `question_text` and published the
@@ -193,15 +204,6 @@ class ResultsViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, future_question.question_text)
         self.assertContains(response, future_question.choice_set.first().choice_text)
-
-    def test_choices_order(self):
-        question = create_question(question_text='Past Question', days=-5, nchoices=2)
-        first, second = question.choice_set.all()
-        first.votes = 1
-        first.save()
-        second.votes = 2
-        second.save()
-        assert question.choice_set.first() == question.choice_set.order_by('-votes').first()
 
 
 class VoteViewTests(TestCase):
