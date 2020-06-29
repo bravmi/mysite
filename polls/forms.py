@@ -8,7 +8,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ['question', 'created_date', 'author', 'text']
 
-    def __init__(self, question_pk=None, username=None, *args, **kwargs):
+    def __init__(self, *args, question_pk=None, username=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['text'].widget.attrs['autofocus'] = ''
 
