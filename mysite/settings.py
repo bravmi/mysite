@@ -30,7 +30,6 @@ ALLOWED_HOSTS = ['127.0.0.1', '192.168.100.6']
 # Application definition
 
 INSTALLED_APPS = [
-    'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'crispy_forms',
-    'debug_toolbar'
+    'debug_toolbar',
+
+    'polls.apps.PollsConfig',
 ]
 
 MIDDLEWARE = [
