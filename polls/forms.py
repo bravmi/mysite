@@ -10,7 +10,7 @@ class CommentForm(forms.ModelForm):
 
     def __init__(self, question_pk=None, username=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['text'].widget.attrs['autofocus'] = ''
+        self.fields['text'].widget.attrs['autofocus'] = True
 
         if question_pk:
             self.fields['question'].initial = question_pk
